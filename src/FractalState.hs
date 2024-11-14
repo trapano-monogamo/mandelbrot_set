@@ -18,7 +18,7 @@ module FractalState
 import Data.Complex
 
 
-type Fractal = (Complex Float -> Complex Float -> Complex Float)
+type Fractal = (Complex Double -> Complex Double -> Complex Double)
 
 
 coolFractals :: [(String, Fractal)]
@@ -41,9 +41,9 @@ getFractal idx = snd $ coolFractals !! idx
 data FractalState =
   FractalState { sWidth :: Int, sHeight :: Int
                , pWidth :: Int, pHeight :: Int
-               , scaleX :: Float, scaleY :: Float
-               , posX :: Float, posY :: Float
-               , threshold :: Float
+               , scaleX :: Double, scaleY :: Double
+               , posX :: Double, posY :: Double
+               , threshold :: Double
                , maxIterations :: Int
                , fractalIndex :: Int
                , fractal :: Fractal
@@ -61,7 +61,7 @@ fractalState =
                , fractal = snd $ coolFractals !! 0
                }
 
-moveFractal :: Float -> Float -> FractalState -> FractalState
+moveFractal :: Double -> Double -> FractalState -> FractalState
 moveFractal x y state =
   FractalState { sWidth = sWidth state, sHeight = sHeight state
                , pWidth = pWidth state, pHeight = pHeight state
@@ -75,7 +75,7 @@ moveFractal x y state =
   where dx =  x / scaleX state
         dy = -y / scaleY state
 
-setFractalPosition :: Float -> Float -> FractalState -> FractalState
+setFractalPosition :: Double -> Double -> FractalState -> FractalState
 setFractalPosition x y state =
   FractalState { sWidth = sWidth state, sHeight = sHeight state
                , pWidth = pWidth state, pHeight = pHeight state
@@ -111,7 +111,7 @@ setPictureDimensions w h state =
                , fractal = fractal state
                }
 
-setScaleDimensions :: Float -> Float -> FractalState -> FractalState
+setScaleDimensions :: Double -> Double -> FractalState -> FractalState
 setScaleDimensions sx sy state =
   FractalState { sWidth = sWidth state, sHeight = sHeight state
                , pWidth = pWidth state, pHeight = pHeight state
@@ -123,7 +123,7 @@ setScaleDimensions sx sy state =
                , fractal = fractal state
                }
 
-setThreshold :: Float -> FractalState -> FractalState
+setThreshold :: Double -> FractalState -> FractalState
 setThreshold tr state =
   FractalState { sWidth = sWidth state, sHeight = sHeight state
                , pWidth = pWidth state, pHeight = pHeight state

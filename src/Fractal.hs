@@ -2,7 +2,8 @@ module Fractal
 ( computeFractal
 , pixelToComplex
 , colorToBytes
-, rgba
+, rgb32
+, fromHSVtoRGB
 , colorCode
 , fractalImage
 , updateFractalState
@@ -15,8 +16,9 @@ import FractalState
 
 import Graphics.Gloss
 import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Game     -- Event, IO version of play function
+import Graphics.Gloss.Interface.IO.Game -- Event, IO version of play function
 
+import Data.Fixed -- mod' which is mod for floats
 import Data.Complex
 import Data.Word (Word8, Word32)
 import Data.ByteString (ByteString)
@@ -24,16 +26,16 @@ import qualified Data.ByteString as B
 import Data.Bits (shiftR, shiftL, (.&.), (.|.))
 
 
-computeFractal :: FractalState -> Complex Float -> Int
+computeFractal :: FractalState -> Complex Double -> Int
 computeFractal state start = go start start 0
-  where go :: Complex Float -> Complex Float -> Int -> Int
+  where go :: Complex Double -> Complex Double -> Int -> Int
         go z c iters
-          | iters >= (maxIterations state) = (maxIterations state)
+          | iters >= (maxIterations state) = maxIterations state
           | (magnitude z) >= (threshold state) = iters
           | otherwise = go (fractal c z) c (iters + 1)
           where fractal = getFractal $ fractalIndex state
 
-pixelToComplex :: FractalState -> (Int,Int) -> Complex Float
+pixelToComplex :: FractalState -> (Int,Int) -> Complex Double
 pixelToComplex state (py,px) = cx :+ cy
   where x = fromIntegral px
         y = fromIntegral py
@@ -48,19 +50,38 @@ colorToBytes w = [ fromIntegral $ (w `shiftR` 24),
                    fromIntegral $ (w `shiftR`  8) .&. 0xFF,
                    fromIntegral $  w              .&. 0xFF ]
 
-rgba :: Word8 -> Word8 -> Word8 -> Word8 -> Word32
-rgba r g b a = (fromIntegral r `shiftL` 24) .|.
+rgb32 :: (Word8,Word8,Word8) -> Word32
+rgb32 (r,g,b) = (fromIntegral r `shiftL` 24) .|.
                (fromIntegral g `shiftL` 16) .|.
                (fromIntegral b `shiftL`  8) .|.
-               fromIntegral a
+               0xFF
+
+fromHSVtoRGB :: (Float,Float,Float) -> (Word8,Word8,Word8)
+fromHSVtoRGB (h,s,v) =
+  let h' = h/60
+      c = v * s
+      x = c * (1 - (abs $ (h' `mod'` 2) - 1))
+      m = v - c
+      (r', g', b') =
+        if                 0 <= h' && h' < 1    then (c,x,0)
+          else if          1 <= h' && h' < 2    then (x,c,0)
+            else if        2 <= h' && h' < 3    then (0,c,x)
+              else if      3 <= h' && h' < 4    then (0,x,c)
+                else if    4 <= h' && h' < 5    then (x,0,c)
+                  else  {- 5 <= h' && h' < 6 -}      (c,0,x)
+      (r,g,b) = ((r' + m)*255, (g' + m)*255, (b' + m)*255)
+  in (round r, round g, round b)
 
 colorCode :: FractalState -> Int -> Word32
 colorCode state iters =
-  let t = (fromIntegral iters / (fromIntegral $ maxIterations state)) :: Float
-      r = round (255 * t) :: Word8
-      g = 0 :: Word8
-      b = round (255 * (1 - t)) :: Word8
-  in rgba r g b 0xFF
+  let -- smoothIter = if (magnitude z) > 2
+      --   then fromIntegral iters + 1 - logBase 2 (log (magnitude z))
+      --   else fromIntegral iters
+      -- hue = 360.0 * (smoothIter / (fromIntegral $ maxIterations state))
+      hue = 360.0 * ((fromIntegral iters) / (fromIntegral $ maxIterations state))
+      saturation = 1.0
+      value = if iters < maxIterations state then 1.0 else 0.0
+  in (rgb32 . fromHSVtoRGB) (hue,saturation,value)
 
 fractalImage :: FractalState -> ByteString
 fractalImage state = (B.pack . concat) pixels
