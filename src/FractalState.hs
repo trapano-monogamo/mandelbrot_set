@@ -22,16 +22,17 @@ type Fractal = (Complex Double -> Complex Double -> Complex Double)
 
 
 coolFractals :: [(String, Fractal)]
-coolFractals = [ ("mandelbrot",         (\c z -> z**2 + c)),                 -- 0
-                 ("pine processionary", (\c z -> (exp z) ** 2 + c)),         -- 1
-                 ("curious creatures",  (\c z -> (1 / (exp z) ** 2) + c)),   -- 2
-                 ("idk",                (\c z -> (z / (exp z)) + c)),        -- 3
-                 ("starry night",       (\c z -> (exp z) ** (0 :+ 2) + c)),  -- 4
-                 ("idk 2",              (\c z -> (exp z) / z + c)),          -- 5
-                 ("ant mandibles",      (\c z -> z / (exp $ 1 / z) + c)),    -- 6
-                 ("legged star",        (\c z -> (log z) / (exp z) + c)),    -- 7
-                 ("ghostly dust",       (\c z -> (z * log z) ** c)),         -- 8
-                 ("idk 3",              (\c z -> (z * sin z) + c))           -- 9
+coolFractals = [ ("mandelbrot",         (\c z -> z**2 + c)),                  -- 0
+                 ("burning ship",       (\c z -> ((abs $ realPart z) :+ (abs $ imagPart z))**2 + c))
+                 -- ("pine processionary", (\c z -> (exp z) ** 2 + c)),         -- 1
+                 -- ("curious creatures",  (\c z -> (1 / (exp z) ** 2) + c)),   -- 2
+                 -- ("idk",                (\c z -> (z / (exp z)) + c)),        -- 3
+                 -- ("starry night",       (\c z -> (exp z) ** (0 :+ 2) + c)),  -- 4
+                 -- ("idk 2",              (\c z -> (exp z) / z + c)),          -- 5
+                 -- ("ant mandibles",      (\c z -> z / (exp $ 1 / z) + c)),    -- 6
+                 -- ("legged star",        (\c z -> (log z) / (exp z) + c)),    -- 7
+                 -- ("ghostly dust",       (\c z -> (z * log z) ** c)),         -- 8
+                 -- ("idk 3",              (\c z -> (z * sin z) + c))           -- 9
                ]
 
 getFractal :: Int -> Fractal
@@ -51,7 +52,7 @@ data FractalState =
 
 fractalState :: FractalState
 fractalState =
-  FractalState { sWidth = 2000, sHeight = 2000
+  FractalState { sWidth = 1200, sHeight = 1200
                , pWidth = 700, pHeight = 700
                , scaleX = 30.5, scaleY = 30.5
                , posX = 0, posY = 0

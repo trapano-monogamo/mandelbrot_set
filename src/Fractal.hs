@@ -18,6 +18,7 @@ import Graphics.Gloss
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game -- Event, IO version of play function
 
+import Control.Parallel.Strategies
 import Data.Fixed -- mod' which is mod for floats
 import Data.Complex
 import Data.Word (Word8, Word32)
@@ -27,7 +28,7 @@ import Data.Bits (shiftR, shiftL, (.&.), (.|.))
 
 
 computeFractal :: FractalState -> Complex Double -> Int
-computeFractal state start = go start start 0
+computeFractal state start = go 0 start 0
   where go :: Complex Double -> Complex Double -> Int -> Int
         go z c iters
           | iters >= (maxIterations state) = maxIterations state
@@ -86,7 +87,9 @@ colorCode state iters =
 fractalImage :: FractalState -> ByteString
 fractalImage state = (B.pack . concat) pixels
   where pixels :: [[Word8]]
-        pixels = map (colorToBytes . (colorCode state) . (computeFractal state) . (pixelToComplex state)) pts
+        pixels = map
+          (colorToBytes . (colorCode state) . (computeFractal state) . (pixelToComplex state))
+          pts `using` (parListChunk $ w * (h `div` 10)) rdeepseq
         w = pWidth state
         h = pHeight state
         pts = [(y,x) | y <- [1..h], x <- [1..w]]
@@ -96,10 +99,10 @@ fractalImage state = (B.pack . concat) pixels
 
 updateFractalState :: Event -> FractalState -> FractalState
 updateFractalState = go
-  where go (EventKey k Down _ _) = handleKeyPress k
+  where go (EventKey k Down _ mousePos) = handleKeyPress k mousePos
         go (EventResize (w,h)) = setScreenDimensions w h
         go _ = id
-        handleKeyPress k state = case k of
+        handleKeyPress k (mx,my) state = case k of
           Char 'm' -> setMaxIterations ((maxIterations state) + 10) state
           Char 'M' -> setMaxIterations ((maxIterations state) - 10) state
           Char 't' -> setThreshold ((threshold state) + 10) state
@@ -114,6 +117,18 @@ updateFractalState = go
           Char 'P' -> setPictureDimensions ((pWidth state) - 100) ((pHeight state) - 100) state
           SpecialKey KeyUp -> setScaleDimensions ((scaleX state) * 2) ((scaleY state) * 2) state
           SpecialKey KeyDown -> setScaleDimensions ((scaleX state) / 2) ((scaleY state) / 2) state
+          MouseButton WheelUp -> setScaleDimensions ((scaleX state) * 2) ((scaleY state) * 2) state
+          MouseButton WheelDown -> setScaleDimensions ((scaleX state) / 2) ((scaleY state) / 2) state
+          MouseButton LeftButton -> do
+            let dx = tx * (realToFrac mx - posX state)
+                dy = ty * (realToFrac my - posY state)
+                sw = fromIntegral $ sWidth state
+                sh = fromIntegral $ sHeight state
+                iw = fromIntegral $ pWidth state
+                ih = fromIntegral $ pHeight state
+                tx = iw / sw
+                ty = ih / sh
+            moveFractal dx dy state
           _ -> state
 
 renderFractalState :: FractalState -> Picture
