@@ -1,0 +1,50 @@
+module SinglePointEvolution
+(
+-- Evolution
+-- , toScreenPoint
+-- , toSetPoint
+-- , mandelbrotPointEvolution
+-- , renderMandelbrotPointEvolution
+-- , interactWithMandelbrotPointEvolution
+-- , updateFunc
+) where
+
+-- import FractalState
+-- import Fractal
+-- 
+-- import Data.Complex
+-- import Graphics.Gloss.Interface.IO.Game
+-- 
+-- type Evolution = [Complex Float]
+-- 
+-- toScreenPoint :: Complex Float -> (Float,Float)
+-- toScreenPoint z = (x,y)
+--   where w,h :: Float
+--         w = fromIntegral $ width fractalState
+--         h = fromIntegral $ height fractalState
+--         x = (w * realPart z) / (scaleX fractalState)
+--         y = (h * imagPart z) / (scaleY fractalState)
+-- 
+-- toSetPoint :: (Float,Float) -> Complex Float
+-- toSetPoint (x,y) = pixelToComplex (py,px)
+--   where h,w :: Float
+--         w = fromIntegral $ width fractalState
+--         h = fromIntegral $ height fractalState
+--         px = round $ x + (w/2)
+--         py = round $ y + (h/2)
+-- 
+-- mandelbrotPointEvolution :: Int -> Complex Float -> Evolution
+-- mandelbrotPointEvolution iters c = take iters (succession c)
+--   where succession z = [z] ++ (succession $ (fractal fractalState) c z)
+-- 
+-- renderMandelbrotPointEvolution :: Evolution -> Picture
+-- renderMandelbrotPointEvolution setPoints = pictures [mandelbrotPicture, evolution]
+--   where evolution = Color white $ line $ map toScreenPoint setPoints
+-- 
+-- interactWithMandelbrotPointEvolution :: Event -> Evolution -> Evolution
+-- interactWithMandelbrotPointEvolution = newSet
+--   where newSet (EventMotion p) = (\_ -> mandelbrotPointEvolution (maxIterations fractalState) (toSetPoint p))
+--         newSet _                   = id
+-- 
+-- updateFunc :: Float -> Evolution -> Evolution
+-- updateFunc _ = id
