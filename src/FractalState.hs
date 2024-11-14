@@ -51,7 +51,7 @@ data FractalState =
 
 fractalState :: FractalState
 fractalState =
-  FractalState { sWidth = 1400, sHeight = 1400
+  FractalState { sWidth = 2000, sHeight = 2000
                , pWidth = 700, pHeight = 700
                , scaleX = 30.5, scaleY = 30.5
                , posX = 0, posY = 0

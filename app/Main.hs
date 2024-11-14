@@ -1,13 +1,9 @@
 module Main (main) where
 
-import Graphics.Gloss                       -- play
+import Graphics.Gloss -- play
 
 import FractalState
 import Fractal
-import SinglePointEvolution
-
-import Data.Complex
-
 
 window :: Display
 window = InWindow

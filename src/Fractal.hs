@@ -97,6 +97,7 @@ fractalImage state = (B.pack . concat) pixels
 updateFractalState :: Event -> FractalState -> FractalState
 updateFractalState = go
   where go (EventKey k Down _ _) = handleKeyPress k
+        go (EventResize (w,h)) = setScreenDimensions w h
         go _ = id
         handleKeyPress k state = case k of
           Char 'm' -> setMaxIterations ((maxIterations state) + 10) state
