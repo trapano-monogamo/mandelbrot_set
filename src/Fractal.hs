@@ -117,10 +117,15 @@ updateFractalState = go
           Char 'P' -> setPictureDimensions ((pWidth state) - 100) ((pHeight state) - 100) state
           SpecialKey KeyUp -> setScaleDimensions ((scaleX state) * 2) ((scaleY state) * 2) state
           SpecialKey KeyDown -> setScaleDimensions ((scaleX state) / 2) ((scaleY state) / 2) state
-          MouseButton WheelUp -> setScaleDimensions ((scaleX state) * 2) ((scaleY state) * 2) state
-          MouseButton WheelDown -> setScaleDimensions ((scaleX state) / 2) ((scaleY state) / 2) state
-          MouseButton LeftButton -> do
-            let dx = tx * (realToFrac mx - posX state)
+          MouseButton WheelUp -> do
+            moveFractal dx dy
+            $ setScaleDimensions ((scaleX state) * 2) ((scaleY state) * 2) state
+          MouseButton WheelDown -> do
+            moveFractal dx dy
+            $ setScaleDimensions ((scaleX state) / 2) ((scaleY state) / 2) state
+          MouseButton LeftButton -> moveFractal dx dy state
+          _ -> state
+          where dx = tx * (realToFrac mx - posX state)
                 dy = ty * (realToFrac my - posY state)
                 sw = fromIntegral $ sWidth state
                 sh = fromIntegral $ sHeight state
@@ -128,8 +133,6 @@ updateFractalState = go
                 ih = fromIntegral $ pHeight state
                 tx = iw / sw
                 ty = ih / sh
-            moveFractal dx dy state
-          _ -> state
 
 renderFractalState :: FractalState -> Picture
 renderFractalState state = pictures [scale (1 / tx) (1 / ty) image, infoPic]
